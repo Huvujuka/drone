@@ -69,76 +69,124 @@ def detDeltaLatLong(A, B, W, H, overlap):
     return dLat, dLong
 
 
+def WithinBounds(deltaAB, X, Lat0Long1, dLatLong):
+    if deltaAB[Lat0Long1] < 0:
+        if deltaAB[Lat0Long1] < X[Lat0Long1] < 0:
+            return True
+        else:
+            if X[0] == X[1] == 0:
+                return True
+            else: 
+                return False
+    else:
+        if 0 < X[Lat0Long1] < deltaAB[Lat0Long1]:
+            return True
+        else: 
+            return False
+
+def stitchPath(deltaLat, deltaLong, A):
+    path= [[],[]]
+    for i in range(len(deltaLat)):
+        path[0][i] = A[0] + deltaLat[i] 
+        path[1][i] = A[1] + deltaLong[i]
+        
 def createPath(A,B, altitude, overlap):
     rnd = 5
     path = []
     deltaLat = []
     deltaLong = []
     deltaAB = [A[0]-B[0], A[1]-B[1]]
-    dLAT_ = LatToFeet(deltaAB[0])
-    dLONG_ = LongToFeet(deltaAB[1])
-    print("Lat and long total displacement (feet): " + str(dLAT_) + "/" + str(dLONG_))
+
     W, H = find_WH(altitude)
     dLat, dLong = detDeltaLatLong(A, B, W, H, overlap)
-    
+    dLatLong = [dLat, dLong]
     print(deltaAB)
     print("[" + str(dLat) + "," + str(dLong) + "]")
     X = [0,0]
-    deltaLat.append(X[0])
-    deltaLong.append(X[1])
     
-    if A == B:
-        return path
-    if(abs(deltaAB[0]) >= abs(deltaAB[1])):
-        while bool((((abs(deltaAB[0]) > abs(X[0])) & (abs(X[0]) >= 0.0)) or ((abs(deltaAB[1]) > abs(X[1])) & (abs(X[1]) >= 0.0))) or (X[0] == X[1] == 0)):
-            if (Uturn(deltaAB, X, 0)):
-                #if (abs(X[1] + dLong/2) > abs(deltaAB[1])):
-                #    break
-                #else:
-                    X[1] += dLong
-                    deltaLat.append(X[0]) 
-                    deltaLong.append(X[1])
-                    dLat = -dLat
-                    X[0] += dLat
-                    deltaLat.append(X[0])
-                    deltaLong.append(X[1])
-                    
-            else: 
+#######################         A & B are the same ######################################3
+    if(A == B):
+        print("SAME")
+        deltaLat.append(X[0])
+        deltaLong.append(X[1])
+        #return stitchPath(deltaLat, deltaLong, A)
+        return deltaLat, deltaLong #testing return statement
+#######################         A & B have a displacement that is less than the width of the camera frame #############################
+
+    elif(bool(abs(deltaAB[0]) < dLat)  or  bool(abs(deltaAB[1]) < dLong)):
+        print("ONE DIM SAME")
+        if abs(deltaAB[0])>abs(deltaAB[1]):
+            X[1] = deltaAB[1]/2
+            print(str(X[1]))
+            deltaLat.append(X[0])
+            deltaLong.append(X[1])
+            while(WithinBounds(deltaAB, X, 0, dLatLong)):
                 X[0] += dLat
                 deltaLat.append(X[0])
                 deltaLong.append(X[1])
-            #print("X[0] = " + str(X[0]) + "         X[1] = " + str(X[1]))
-####################################################################################
-#Else statement gets stuck
-    else:
-        while bool((((abs(deltaAB[0]) > abs(X[0])) & (abs(X[0]) >= 0.0)) or ((abs(deltaAB[1]) > abs(X[1])) & (abs(X[1]) >= 0.0))) or (X[0] == X[1] == 0)):
-            if (Uturn(deltaAB, X, 1)):
-                #if (abs(X[0] + dLat/2) > abs(deltaAB[0])):
-                #    break
-                #else:
-                    
-                    X[0] += dLat
-                    deltaLat.append(X[0]) 
-                    deltaLong.append(X[1])
-                    dLong = -dLong
-                    X[1] += dLong
-                    deltaLat.append(X[0])
-                    deltaLong.append(X[1])
-                    
-            else: 
+        else:
+            X[0] = deltaAB[0]/2
+            deltaLat.append(X[0])
+            deltaLong.append(X[1])
+            while(WithinBounds(deltaAB, X, 1, dLatLong)):
                 X[1] += dLong
                 deltaLat.append(X[0])
                 deltaLong.append(X[1])
-            #print("X[0] = " + str(X[0]) + "         X[1] = " + str(X[1]))
-        
-    
 
-    return deltaLat, deltaLong
+        #return stitchPath(deltaLat, deltaLong, A)
+        return deltaLat, deltaLong #testing return statement
+##################### Non special case A&B, just any other A&B that this code can handle. 
+    else:
+        print("ALL DIFF")
+        deltaLat.append(X[0])
+        deltaLong.append(X[1])
+        if(abs(deltaAB[0]) >= abs(deltaAB[1])):
+            while bool((((abs(deltaAB[0]) > abs(X[0])) & (abs(X[0]) >= 0.0)) or ((abs(deltaAB[1]) > abs(X[1])) & (abs(X[1]) >= 0.0))) or (X[0] == X[1] == 0)):
+                if bool(Uturn(deltaAB, X, 0)):
+                    #if (abs(X[1] + dLong/2) > abs(deltaAB[1])):
+                    #    break
+                    #else:
+                        X[1] += dLong
+                        deltaLat.append(X[0]) 
+                        deltaLong.append(X[1])
+                        dLat = -dLat
+                        X[0] += dLat
+                        deltaLat.append(X[0])
+                        deltaLong.append(X[1])
+                        
+                else: 
+                    X[0] += dLat
+                    deltaLat.append(X[0])
+                    deltaLong.append(X[1])
+                #print("X[0] = " + str(X[0]) + "         X[1] = " + str(X[1]))
 
-        
+        else:
+            while bool((((abs(deltaAB[0]) > abs(X[0])) & (abs(X[0]) >= 0.0)) or ((abs(deltaAB[1]) > abs(X[1])) & (abs(X[1]) >= 0.0))) or (X[0] == X[1] == 0)):
+                if bool(Uturn(deltaAB, X, 1)):
+                    #if (abs(X[0] + dLat/2) > abs(deltaAB[0])):
+                    #    break
+                    #else:
+                        
+                        X[0] += dLat
+                        deltaLat.append(X[0]) 
+                        deltaLong.append(X[1])
+                        dLong = -dLong
+                        X[1] += dLong
+                        deltaLat.append(X[0])
+                        deltaLong.append(X[1])
+                        
+                else: 
+                    X[1] += dLong
+                    deltaLat.append(X[0])
+                    deltaLong.append(X[1])
+                #print("X[0] = " + str(X[0]) + "         X[1] = " + str(X[1]))
+
+
+
+
 
 altitude = 40
-A = [30.617244, -96.332644]
+A = [30.617344, -96.332644]
 
 B = [30.617244, -96.332538]
 overlap = .4
@@ -149,4 +197,3 @@ plt.plot(c, d, 'b*')
 plt.plot(A[0]-B[0],A[1]-B[1], "r+" )
 plt.plot(0,0, "r+")
 plt.show()
-#print(path__)
