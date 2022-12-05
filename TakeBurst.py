@@ -2,7 +2,7 @@ import platform
 import cv2
 import numpy as np
 import os
-import time
+
 import multiprocessing
 
 def takeBurst(Burst_Num):
