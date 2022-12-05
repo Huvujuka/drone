@@ -6,7 +6,7 @@ import time
 import multiprocessing
 
 def takeBurst(Burst_Num):
-    startTime = time.time()
+
     Img_Array = []
     currImg = cv2.VideoCapture(0)                                         #Initialize camera
 
@@ -26,8 +26,7 @@ def takeBurst(Burst_Num):
 
     for i in range(len(Img_Array)):
         cv2.imwrite("/home/odroid/Desktop/Demo/CompletedImages/Burst/Img" + str(i) + ".jpg", Img_Array[i])
-    runTime = time.time() - startTime
-    print("Took " + str(runTime))
+
 
 
 num_Imgs = int(input("Number of pictures to take: "))
