@@ -28,9 +28,9 @@ async def run():
     altitude_m = altitude_ft/3.28084
     velocity_mph = 10
     velocity_ms = velocity_mph*.44704 ####m/s
-    A = [47.397039859999997, 8.5455725400000002]
+    A = [47.3970, 8.545]
 
-    B = [47.398036222362471, 8.5460146439425509]
+    B = [47.398, 8.546]
     flyThru = False
     #Overlap can be an integer multiple of n*.1
     ##Overlap minimum = .20
@@ -45,9 +45,10 @@ async def run():
     ### wait time at each point in seconds
     loiter = 3 
     mission_items = []
-    
+
     for i in range(len(c)):
         print(i)
+        #create mission items
         mission_items.append(MissionItem(c[i],
                                          d[i],
                                          altitude_m,

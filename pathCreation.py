@@ -38,7 +38,7 @@ def FeetToLong(feet):
 
 #Determine what delta Latitude or Longitude is in degrees
 def detDeltaLatLong(A, B, W, H, overlap):
-    if abs(A[0]-B[0]) >= abs(A[1]-B[1]):
+    if abs(LatToFeet(A[0]-B[0])) >= abs(LongToFeet(A[1]-B[1])):
         dLat = FeetToLat(H - (H * overlap))
         dLong = FeetToLong(W - (W * overlap))
     else:
@@ -88,10 +88,18 @@ def WithinBounds(dAB, X, dLatLong, LatLong):
         elif X[0] == X[1] == 0: retVal = True
 
         else: 
-            if (X[LatLong] == 0 & abs(dLatLong[LatLong_] <= abs(dLatLong[LatLong]))):
-                retVal = True
-            else:    
-                retVal = False
+            if LatLong == 0:
+                if (bool(X[LatLong] == 0) & bool(abs(LongToFeet(dLatLong[LatLong_])) <= abs(LatToFeet(dLatLong[LatLong])))):
+                    retVal = True
+
+                else:    
+                    retVal = False
+
+            else:
+                if (X[LatLong] == 0 & abs(LatToFeet(dLatLong[LatLong_]) <= abs(LongToFeet(dLatLong[LatLong])))):
+                    retVal = True
+                else:    
+                    retVal = False
 
 
     return retVal
@@ -126,8 +134,8 @@ def createPath(A, B, altitude, overlap):
         check = 2
         #Both dimensions smaller than camera spacings
         if ((abs(dAB[Lat])< abs(dLatLong[Lat])) and (abs(dAB[Long]) < abs(dLatLong[Long]))):
-            delta[0][0] = (1/2) * dAB[Lat] 
-            delta[1][0] = (1/2) * dAB[Long]
+            delta[0].append((1/2) * dAB[Lat]) 
+            delta[1].append((1/2) * dAB[Long])
         #One dimension smaller than camera spacing
         elif abs(dAB[Lat]) < abs(dLatLong[Lat]):
             X[Lat] = dAB[Lat] / 2
@@ -142,7 +150,7 @@ def createPath(A, B, altitude, overlap):
             check = 0
         #Goes into loop if one delta is smaller than the size of the camera area
         if not(check == 2):
-            while (WithinBounds(dAB, X, dLatLong, check)):
+            while (True):
                 tempX = X[:]
                 tempX[check] = tempX[check] + 1/2 * dLatLong[check]
                 X[check] += dLatLong[check]
@@ -156,7 +164,7 @@ def createPath(A, B, altitude, overlap):
         delta[Long].append(X[Long])
         #Sees if lat or long is larger to decide which to loop over
         check = 0
-        if abs(dLatLong[Lat]) < abs(dLatLong[Long]):
+        if abs(LatToFeet(dLatLong[Lat])) < abs(LongToFeet(dLatLong[Long])):
             check = 1
         while WithinBounds(dAB, X, dLatLong, 0) or WithinBounds(dAB, X, dLatLong, 1):
             #Checks half step up to see if U-turn needed
@@ -179,7 +187,7 @@ def createPath(A, B, altitude, overlap):
                     not_Check = int(bool(not(bool(check))))
                     tempX[not_Check] = tempX[not_Check] + 1/2 * dLatLong[not_Check]
                     if not(WithinBounds(dAB, tempX, dLatLong, Long)):
-                        #print("breaks loop")
+                
                         break
                     delta[Lat].append(X[Lat])
                     delta[Long].append(X[Long])
@@ -196,6 +204,7 @@ def createPath(A, B, altitude, overlap):
                     tempX[not_Check] = tempX[not_Check] + 1/2 * dLatLong[not_Check]
                     X[Lat] += dLatLong[Lat]
                     if not(WithinBounds(dAB, tempX, dLatLong, Lat)):
+            
                         break
                     delta[Lat].append(X[Lat])
                     delta[Long].append(X[Long])
@@ -207,8 +216,4 @@ def createPath(A, B, altitude, overlap):
                     delta[Long].append(X[Long])
     path = stitch(A, delta)
     return path
-
-
-
-
     
