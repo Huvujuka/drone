@@ -19,7 +19,7 @@ if(video.isOpened() == False):
 
 
 #Percent of original video size
-percent = 0.75
+percent = 0.25
 #temp image holder for video
 container = []
 #records how long recording images for
@@ -44,7 +44,7 @@ height = int(video.get(4) * percent)
 width = int(video.get(3) * percent)
 #create video container
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-finVid = cv2.VideoWriter('/home/odroid/Desktop/Demo/Videos/TestVid.mp4', fourcc, FPS, (width, height))
+finVid = cv2.VideoWriter('TestVid.mp4', fourcc, FPS, (width, height))
 print("recorded at: " + str(FPS) + " FPS")
 #create video
 for i in container:
